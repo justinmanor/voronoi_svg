@@ -2,16 +2,23 @@ import megamu.mesh.*;
   
 PShape s;
 PShape dot, dot2;
-float[][]  verts = new float[604][2]; //make 1st index be count+1 as seen in console
+float[][]  verts = new float[20002][2]; //make 1st index be count+1 as seen in console
 float[][] myEdges;
 MPolygon[] myRegions;
+  
+  
+PrintWriter lines;
+  
+PrintWriter regions;
+  
+int maxP = 15;  
   
 void setup() {
   size(5120, 2000);
   //initFXAA();
   //smooth(32);
   pixelDensity(2);
-  s = loadShape("Sketches_script.svg");
+  s = loadShape("language5.svg");
   
   int count = s.getChildCount();
   println("Count = " + count);
@@ -19,6 +26,10 @@ void setup() {
   //int vcount = dot.getVertexCount();
   //println("vert count = " + vcount);
   
+  lines = createWriter("lines.txt"); 
+  lines.println("x,y");
+  regions = createWriter("regions.txt"); 
+  regions.println("n,x0,y0,x1,y1,x2,y2,x3,y3,x4,y4,x5,y5,x6,y6,x7,y7,x8,y8,x9,y9,x10,y10,x11,y11,x12,y12,x13,y13,x14,y14");
   
   for (int i = 1 ; i < s.getChildCount() ; i++) {
     if (i%1000 == 0) println(i);
@@ -73,14 +84,18 @@ void drawNetwork() {
       fill(0);
       ellipse( scale*startX, scale*startY, 7,7);
       ellipse( scale*endX, scale*endY,7,7 );
+      
+      lines.println(scale*startX + ", " + scale*startY + ", " + scale*endX + ", " + scale*endY); // Write the coordinate to the file
   }
   
+  lines.flush();
+  lines.close();
 }
 
 void drawRegions() {
-  //  scale(6.5);
+  scale(6.5);
   background(255);
-  strokeWeight(1.7);
+  strokeWeight(1.0);
   stroke(255);
   float s = 0.8;
   
@@ -89,15 +104,29 @@ void drawRegions() {
     pushMatrix();
     if (i%100 == 0) println(i);
     // an array of points
-    float[][] regionCoordinates = myRegions[i].getCoords();
+    float[][] region = myRegions[i].getCoords();
 
     fill(0);
     //translate(200,-2500);
     scale(s);
     myRegions[i].draw(this); // draw this shape
     popMatrix();
+    
+    regions.print(region.length + ",");
+    
+    for (int j = 0 ; j < region.length ; j++) {
+      regions.print(region[j][0] + "," + region[j][1] + ",");
+    }
+    
+    for (int k = region.length ; k < maxP ; k++) {
+      regions.print("0,0,");
+      
+    }
+    regions.println();
+    
   }
-  
+  regions.flush();
+  regions.close();
   /*
 
   for(int i=0; i<myEdges.length; i++) {
