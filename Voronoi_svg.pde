@@ -2,16 +2,16 @@ import megamu.mesh.*;
   
 PShape s;
 PShape dot, dot2;
-float[][]  verts = new float[18049][2];
+float[][]  verts = new float[604][2]; //make 1st index be count+1 as seen in console
 float[][] myEdges;
 MPolygon[] myRegions;
   
 void setup() {
-  size(5000, 2000);
+  size(5120, 2000);
   //initFXAA();
   //smooth(32);
   pixelDensity(2);
-  s = loadShape("GradLabs_blur_mod.svg");
+  s = loadShape("Sketches_script.svg");
   
   int count = s.getChildCount();
   println("Count = " + count);
@@ -37,7 +37,7 @@ void setup() {
   println("making polygons");
   myRegions = myVoronoi.getRegions();
   println("making edges");
-  //myEdges = myVoronoi.getEdges();
+  myEdges = myVoronoi.getEdges();
   
   strokeWeight(1.0);
   
@@ -49,7 +49,7 @@ void drawNetwork() {
   background(200);
   //shape(s, 0, 0, 2000, 700);
   
-  float scale = 6.5;
+  float scale = 0.8;
     strokeWeight(1.0);
   for(int i=0; i<myEdges.length; i++) {
     float startX = myEdges[i][0];
@@ -61,6 +61,8 @@ void drawNetwork() {
       line( scale*startX, scale*startY, scale*endX, scale*endY );
   }
     strokeWeight(2.0);
+    
+   
   for(int i=0; i<myEdges.length; i++) {
     float startX = myEdges[i][0];
     float startY = myEdges[i][1];
@@ -72,13 +74,16 @@ void drawNetwork() {
       ellipse( scale*startX, scale*startY, 7,7);
       ellipse( scale*endX, scale*endY,7,7 );
   }
+  
 }
 
 void drawRegions() {
   //  scale(6.5);
   background(255);
-  strokeWeight(1.5);
+  strokeWeight(1.7);
   stroke(255);
+  float s = 0.8;
+  
   for(int i=0; i<myRegions.length; i++)
   {
     pushMatrix();
@@ -87,10 +92,27 @@ void drawRegions() {
     float[][] regionCoordinates = myRegions[i].getCoords();
 
     fill(0);
-    scale(3.0);
+    //translate(200,-2500);
+    scale(s);
     myRegions[i].draw(this); // draw this shape
     popMatrix();
   }
+  
+  /*
+
+  for(int i=0; i<myEdges.length; i++) {
+    float startX = myEdges[i][0];
+    float startY = myEdges[i][1];
+    float endX = myEdges[i][2];
+    float endY = myEdges[i][3];
+    
+      //stroke(0);
+      noStroke();
+      fill(255);
+      ellipse( s*startX, scale*startY, 7,7);
+      //ellipse( s*endX, scale*endY,10,10 );
+  }  
+  */
 }
 
 String getFamilyName(int family) 
