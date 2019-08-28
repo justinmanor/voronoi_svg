@@ -60,20 +60,23 @@ void drawNetwork() {
   background(200);
   //shape(s, 0, 0, 2000, 700);
   
-  float scale = 0.8;
+  float scale = 6.5;
     strokeWeight(1.0);
+    
   for(int i=0; i<myEdges.length; i++) {
     float startX = myEdges[i][0];
     float startY = myEdges[i][1];
     float endX = myEdges[i][2];
     float endY = myEdges[i][3];
-    
+    strokeWeight(2.0+ abs(startX)/100.0);
     //if (sqrt((endX - startX)*(endX - startX) + (endY - startY)*(endY - startY)) < 20.0)  
       line( scale*startX, scale*startY, scale*endX, scale*endY );
+      lines.println(scale*startX + "," + scale*startY + "," + scale*endX + "," + scale*endY);
   }
-    strokeWeight(2.0);
-    
-   
+  
+  strokeWeight(2.0);
+  
+  /* 
   for(int i=0; i<myEdges.length; i++) {
     float startX = myEdges[i][0];
     float startY = myEdges[i][1];
@@ -87,35 +90,49 @@ void drawNetwork() {
       
       lines.println(scale*startX + ", " + scale*startY + ", " + scale*endX + ", " + scale*endY); // Write the coordinate to the file
   }
-  
+  */
   lines.flush();
   lines.close();
 }
 
 void drawRegions() {
   scale(6.5);
-  background(255);
-  strokeWeight(1.0);
+  background(0);
+  noFill();
+  strokeWeight(0.1);
   stroke(255);
   float s = 0.8;
   
   for(int i=0; i<myRegions.length; i++)
   {
-    pushMatrix();
+    
     if (i%100 == 0) println(i);
     // an array of points
     float[][] region = myRegions[i].getCoords();
+    
+    //myRegions[i].draw(this); // draw this shape
 
-    fill(0);
-    //translate(200,-2500);
-    scale(s);
-    myRegions[i].draw(this); // draw this shape
-    popMatrix();
     
     regions.print(region.length + ",");
     
+    float xc=0,yc=0;
+    float shrinkage = 0.33;
+    
     for (int j = 0 ; j < region.length ; j++) {
-      regions.print(region[j][0] + "," + region[j][1] + ",");
+      xc += region[j][0];
+      yc += region[j][1];
+    }    
+    
+    xc /= region.length;
+    yc /= region.length;
+    
+    for (int j = 0 ; j < region.length ; j++) {
+      
+      float newX = (1.0 - shrinkage)*region[j][0] + shrinkage*xc;
+      float newY = (1.0 - shrinkage)*region[j][1] + shrinkage*yc;
+      region[j][0] = newX;
+      region[j][1] = newY;
+      regions.print(newX + "," + newY + ",");
     }
     
     for (int k = region.length ; k < maxP ; k++) {
@@ -124,6 +141,19 @@ void drawRegions() {
     }
     regions.println();
     
+    pushMatrix();
+    
+    //noFill();
+    //translate(200,-2500);
+    //scale(s);
+    //stroke(random(255), random(255), random(255));
+    fill(255);
+    beginShape();
+    for (int j = 0 ; j < region.length ; j++) {
+      vertex(region[j][0], region[j][1]);
+    }    
+    endShape(CLOSE);
+    popMatrix();
   }
   regions.flush();
   regions.close();
