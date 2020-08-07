@@ -2,7 +2,7 @@ import megamu.mesh.*;
   
 PShape s;
 PShape dot, dot2;
-float[][]  verts = new float[20002][2]; //make 1st index be count+1 as seen in console
+float[][]  verts = new float[5893][2]; //make 1st index be count+1 as seen in console (or maybe just count, no +1)
 float[][] myEdges;
 MPolygon[] myRegions;
   
@@ -14,11 +14,11 @@ PrintWriter regions;
 int maxP = 15;  
   
 void setup() {
-  size(5120, 2000);
+  size(5120, 2700);
   //initFXAA();
   //smooth(32);
   pixelDensity(2);
-  s = loadShape("language5.svg");
+  s = loadShape("branches.svg");
   
   int count = s.getChildCount();
   println("Count = " + count);
@@ -52,15 +52,15 @@ void setup() {
   
   strokeWeight(1.0);
   
-  //drawNetwork();
-  drawRegions();
+  drawNetwork();
+  //drawRegions();
 }
 
 void drawNetwork() {
   background(200);
   //shape(s, 0, 0, 2000, 700);
   
-  float scale = 6.5;
+  float scale = 4.7;
     strokeWeight(1.0);
     
   for(int i=0; i<myEdges.length; i++) {
@@ -68,7 +68,13 @@ void drawNetwork() {
     float startY = myEdges[i][1];
     float endX = myEdges[i][2];
     float endY = myEdges[i][3];
-    strokeWeight(2.0+ abs(startX)/100.0);
+    
+    float l =  10 - sqrt((endX-startX)*(endX-startX) + (endY-startY)*(endY-startY));
+    //strokeWeight(10);
+    //strokeWeight(7.5 + abs(startX)/200.0); //thicker on right
+    if (l < 0) l = 0;
+    strokeWeight(15+ abs(l)); // length determines thickness
+    
     //if (sqrt((endX - startX)*(endX - startX) + (endY - startY)*(endY - startY)) < 20.0)  
       line( scale*startX, scale*startY, scale*endX, scale*endY );
       lines.println(scale*startX + "," + scale*startY + "," + scale*endX + "," + scale*endY);
