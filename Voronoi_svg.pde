@@ -2,23 +2,25 @@ import megamu.mesh.*;
   
 PShape s;
 PShape dot, dot2;
-float[][]  verts = new float[30508][2]; //make 1st index be count+1 as seen in console
+
+float[][]  verts = new float[5893][2]; //make 1st index be count+1 as seen in console (or maybe just count, no +1)
+
 float[][] myEdges;
 MPolygon[] myRegions;
   
   
 PrintWriter lines;
-PrintWriter holes;  
 PrintWriter regions;
   
 int maxP = 15;  
   
 void setup() {
-  size(5120, 2000);
+  size(5120, 2700);
   //initFXAA();
   //smooth(32);
   pixelDensity(2);
-  s = loadShape("FOXP2_drop_shadow_size5_light.svg");
+
+  s = loadShape("branches.svg");
   
   int count = s.getChildCount();
   println("Count = " + count);
@@ -26,8 +28,8 @@ void setup() {
   //int vcount = dot.getVertexCount();
   //println("vert count = " + vcount);
   
-  holes = createWriter("holes.txt"); 
-  holes.println("x,y");
+  lines = createWriter("lines.txt"); 
+  lines.println("x,y");
   regions = createWriter("regions.txt"); 
   regions.println("n,x0,y0,x1,y1,x2,y2,x3,y3,x4,y4,x5,y5,x6,y6,x7,y7,x8,y8,x9,y9,x10,y10,x11,y11,x12,y12,x13,y13,x14,y14");
   
@@ -43,10 +45,7 @@ void setup() {
     verts[i-1][0] = dot.getParam(0);
     verts[i-1][1] = dot.getParam(1);
     
-    holes.println(verts[i-1][0] + "," + verts[i-1][1]);
   }
-  holes.flush();
-  holes.close();  
   
   println("making voronoi");
   Voronoi myVoronoi = new Voronoi( verts );
@@ -57,23 +56,33 @@ void setup() {
   
   strokeWeight(1.0);
   
-  //drawNetwork();
-  drawRegions();
+  drawNetwork();
+  //drawRegions();
 }
 
 void drawNetwork() {
   background(200);
   //shape(s, 0, 0, 2000, 700);
   
-  float scale = 6.5;
+  float scale = 4.7;
     strokeWeight(1.0);
     
   for(int i=0; i<myEdges.length; i++) {
+    
+    if (i % 1000 == 0)
+      println(i);
+    
     float startX = myEdges[i][0];
     float startY = myEdges[i][1];
     float endX = myEdges[i][2];
     float endY = myEdges[i][3];
-    strokeWeight(2.0+ abs(startX)/100.0);
+    
+    float l =  10 - sqrt((endX-startX)*(endX-startX) + (endY-startY)*(endY-startY));
+    //strokeWeight(10);
+    //strokeWeight(7.5 + abs(startX)/200.0); //thicker on right
+    if (l < 0) l = 0;
+    strokeWeight(15+ abs(l)); // length determines thickness
+    
     //if (sqrt((endX - startX)*(endX - startX) + (endY - startY)*(endY - startY)) < 20.0)  
       line( scale*startX, scale*startY, scale*endX, scale*endY );
       lines.println(scale*startX + "," + scale*startY + "," + scale*endX + "," + scale*endY);
