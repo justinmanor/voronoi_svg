@@ -2,7 +2,7 @@ import megamu.mesh.*;
   
 PShape s;
 PShape dot, dot2;
-float[][]  verts = new float[5893][2]; //make 1st index be count+1 as seen in console (or maybe just count, no +1)
+float[][]  verts = new float[28828][2]; //make 1st index be count+1 as seen in console (or maybe just count, no +1)
 float[][] myEdges;
 MPolygon[] myRegions;
   
@@ -18,7 +18,7 @@ void setup() {
   //initFXAA();
   //smooth(32);
   pixelDensity(2);
-  s = loadShape("branches.svg");
+  s = loadShape("FOXP2_glow6.svg");
   
   int count = s.getChildCount();
   println("Count = " + count);
@@ -57,23 +57,28 @@ void setup() {
 }
 
 void drawNetwork() {
-  background(200);
+  background(0);
   //shape(s, 0, 0, 2000, 700);
-  
+  stroke(255);
   float scale = 4.7;
-    strokeWeight(1.0);
+    
     
   for(int i=0; i<myEdges.length; i++) {
+    
+    if (i%100 == 0) println(i);
+    
     float startX = myEdges[i][0];
     float startY = myEdges[i][1];
     float endX = myEdges[i][2];
     float endY = myEdges[i][3];
     
-    float l =  10 - sqrt((endX-startX)*(endX-startX) + (endY-startY)*(endY-startY));
-    //strokeWeight(10);
+    float l = sqrt((endX-startX)*(endX-startX) + (endY-startY)*(endY-startY));
+    if (l> 9) l = 9;
+    
+    strokeWeight(9);
     //strokeWeight(7.5 + abs(startX)/200.0); //thicker on right
-    if (l < 0) l = 0;
-    strokeWeight(15+ abs(l)); // length determines thickness
+    //if (l < 0) l = 0;
+    //strokeWeight(1 + abs(l)); // length determines thickness
     
     //if (sqrt((endX - startX)*(endX - startX) + (endY - startY)*(endY - startY)) < 20.0)  
       line( scale*startX, scale*startY, scale*endX, scale*endY );
@@ -91,10 +96,10 @@ void drawNetwork() {
     
       stroke(200);
       fill(0);
-      ellipse( scale*startX, scale*startY, 7,7);
-      ellipse( scale*endX, scale*endY,7,7 );
+      ellipse( scale*startX, scale*startY, 10,10);
+      ellipse( scale*endX, scale*endY,10,10 );
       
-      lines.println(scale*startX + ", " + scale*startY + ", " + scale*endX + ", " + scale*endY); // Write the coordinate to the file
+      //lines.println(scale*startX + ", " + scale*startY + ", " + scale*endX + ", " + scale*endY); // Write the coordinate to the file
   }
   */
   lines.flush();
