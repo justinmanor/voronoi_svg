@@ -2,13 +2,14 @@ import megamu.mesh.*;
   
 PShape s;
 PShape dot, dot2;
+
 float[][]  verts = new float[28828][2]; //make 1st index be count+1 as seen in console (or maybe just count, no +1)
+
 float[][] myEdges;
 MPolygon[] myRegions;
   
   
 PrintWriter lines;
-  
 PrintWriter regions;
   
 int maxP = 15;  
@@ -18,6 +19,7 @@ void setup() {
   //initFXAA();
   //smooth(32);
   pixelDensity(2);
+
   s = loadShape("FOXP2_glow6.svg");
   
   int count = s.getChildCount();
@@ -42,7 +44,9 @@ void setup() {
     //PVector v = dot.getVertex(0);
     verts[i-1][0] = dot.getParam(0);
     verts[i-1][1] = dot.getParam(1);
+    
   }
+  
   println("making voronoi");
   Voronoi myVoronoi = new Voronoi( verts );
   println("making polygons");
@@ -64,8 +68,10 @@ void drawNetwork() {
     
     
   for(int i=0; i<myEdges.length; i++) {
-    
-    if (i%100 == 0) println(i);
+
+    if (i % 1000 == 0)
+      println(i);
+
     
     float startX = myEdges[i][0];
     float startY = myEdges[i][1];
@@ -107,7 +113,99 @@ void drawNetwork() {
 }
 
 void drawRegions() {
-  scale(6.5);
+  scale(2.0);
+  background(0);
+  noFill();
+  strokeWeight(0.5);
+  stroke(255);
+  float s = 0.8;
+  
+  int maxPoints = 0;
+  
+  for(int i=0; i<myRegions.length; i++)
+  {
+    
+    boolean use = false;
+    
+    if (i%3000 == 0) println(i);
+    // an array of points
+    float[][] region = myRegions[i].getCoords();
+    
+    float xc=0,yc=0;
+    float shrinkage = 0.33;
+    
+    for (int j = 0 ; j < region.length ; j++) {
+      xc += region[j][0];
+      yc += region[j][1];
+      
+      if (region[j][0] < 0 || region[j][1] < 0 || region[j][0] > 900 || region[j][1] > 600)
+         use = false;
+    }    
+    
+    xc /= region.length;
+    yc /= region.length;    
+    
+    for (int j = 0 ; j < region.length ; j++) {
+    
+      float dx = region[j][0] - xc;
+      float dy = region[j][1] - yc;      
+      
+      float dist = sqrt((xc-region[j][0])*(xc-region[j][0]) + (yc-region[j][1])*(yc-region[j][1]));
+      float ratio = 0.5/dist;
+      shrinkage = ratio;// + xc/1000.0;  
+            
+      float newX = (1.0 - shrinkage)*region[j][0] + shrinkage*xc;
+      float newY = (1.0 - shrinkage)*region[j][1] + shrinkage*yc;
+      
+      newX = region[j][0] - dx/dist;
+      newY = region[j][1] - dy/dist;
+      
+      region[j][0] = newX;
+      region[j][1] = newY;
+      
+      myRegions[i].getCoords()[j][0] = newX;
+      myRegions[i].getCoords()[j][1] = newY;
+      
+      //if ( region[j][0] > 200 && region[j][1] > 200 && region[j][0] < 300 && region[j][1] < 300)
+        use = true;
+        
+      /*
+      float seed = random(1.0);
+      
+      if (500.0*sqrt(seed) + 400 < xc)
+        use = false;
+      */
+      
+      if (j > maxPoints) {
+        maxPoints = j;
+        println("maxPoints = " + maxPoints);
+      
+      }
+    }   
+    
+    if (use) {
+      
+      myRegions[i].draw(this); // draw this shape
+      regions.print(region.length + ",");      
+      
+      for (int j = 0 ; j < region.length ; j++) {
+        regions.print(region[j][0] + "," + region[j][1] + ",");
+      }
+      for (int k = region.length ; k < maxP ; k++) {
+        regions.print("0,0,");
+      
+      }
+      regions.println();    
+    }
+  }
+  
+  regions.flush();
+  regions.close();
+  
+}
+
+void drawRegionsCurved() {
+  scale(4.6);
   background(0);
   noFill();
   strokeWeight(0.1);
@@ -117,7 +215,9 @@ void drawRegions() {
   for(int i=0; i<myRegions.length; i++)
   {
     
-    if (i%100 == 0) println(i);
+    boolean use = true;
+    
+    if (i%3000 == 0) println(i);
     // an array of points
     float[][] region = myRegions[i].getCoords();
     
@@ -132,19 +232,37 @@ void drawRegions() {
     for (int j = 0 ; j < region.length ; j++) {
       xc += region[j][0];
       yc += region[j][1];
+      
+      if (region[j][0] < 0 || region[j][1] < 0 || region[j][0] > 900 || region[j][1] > 600)
+         use = false;
     }    
     
     xc /= region.length;
     yc /= region.length;
-    
+  
     for (int j = 0 ; j < region.length ; j++) {
+    
+      float dx = region[j][0] - xc;
+      float dy = region[j][1] - yc;
       
+      float dist = sqrt((xc-region[j][0])*(xc-region[j][0]) + (yc-region[j][1])*(yc-region[j][1]));
+      float ratio = 0.5/dist;
+      shrinkage = ratio;// + xc/1000.0;  
+            
       float newX = (1.0 - shrinkage)*region[j][0] + shrinkage*xc;
       float newY = (1.0 - shrinkage)*region[j][1] + shrinkage*yc;
+      
       region[j][0] = newX;
       region[j][1] = newY;
       regions.print(newX + "," + newY + ",");
+      
+      float seed = random(1.0);
+      
+      if (500.0*sqrt(seed) + 400 < xc)
+        use = false;
+        
     }
+    
     
     for (int k = region.length ; k < maxP ; k++) {
       regions.print("0,0,");
@@ -152,19 +270,36 @@ void drawRegions() {
     }
     regions.println();
     
-    pushMatrix();
+    if (use) {
+      pushMatrix();
+      
+      //noFill();
+      //stroke(random(255), random(255), random(255));
+      
+      stroke(255);
+      noFill();
+      beginShape();
+      curveVertex(region[0][0], region[0][1]);      
+      for (int j = 0 ; j < region.length ; j++) {
+        curveVertex(region[j][0], region[j][1]);
+      }    
+      curveVertex(region[0][0], region[0][1]);      
+      curveVertex(region[1][0], region[1][1]);      
+      endShape();
+      
+      /*
+      int l = region.length;
+      //fill(128);
+      stroke(255);
+      
+      for (int j = 0 ; j < region.length ; j++) {
+         
+         curve(region[j][0], region[j][1],  region[(j+1)%l][0], region[(j+1)%l][1],  region[(j+2)%l][0], region[(j+2)%l][1],  region[(j+3)%l][0], region[(j+3)%3][1] );
+      }
+      */
+      popMatrix();
+    }
     
-    //noFill();
-    //translate(200,-2500);
-    //scale(s);
-    //stroke(random(255), random(255), random(255));
-    fill(255);
-    beginShape();
-    for (int j = 0 ; j < region.length ; j++) {
-      vertex(region[j][0], region[j][1]);
-    }    
-    endShape(CLOSE);
-    popMatrix();
   }
   regions.flush();
   regions.close();
